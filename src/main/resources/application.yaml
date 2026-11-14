@@ -1,3 +1,13 @@
 spring:
   application:
     name: portal-service
+  config:
+    import: optional:file:.env[.properties]
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-minutes: 120
