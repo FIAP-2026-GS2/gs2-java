@@ -5,6 +5,7 @@ import br.com.sampatech.portal.dto.response.IssueTypeResponse;
 import br.com.sampatech.portal.service.IssueTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,7 +21,8 @@ public class AdminIssueTypeController {
     private final IssueTypeService issueTypeService;
 
     @GetMapping
-    public ResponseEntity<Page<IssueTypeResponse>> findAll(@PageableDefault(size = 10, sort = "name") Pageable pageable) {
+    public ResponseEntity<Page<IssueTypeResponse>> findAll(
+            @ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(issueTypeService.findAll(pageable));
     }
 

@@ -5,6 +5,7 @@ import br.com.sampatech.portal.dto.response.UserResponse;
 import br.com.sampatech.portal.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,7 +20,8 @@ public class AdminUserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Page<UserResponse>> findAll(@PageableDefault(size = 10, sort = "name") Pageable pageable) {
+    public ResponseEntity<Page<UserResponse>> findAll(
+            @ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(userService.findAll(pageable));
     }
 

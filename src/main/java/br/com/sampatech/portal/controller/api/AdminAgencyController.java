@@ -5,6 +5,7 @@ import br.com.sampatech.portal.dto.response.MunicipalAgencyResponse;
 import br.com.sampatech.portal.service.MunicipalAgencyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,7 +21,8 @@ public class AdminAgencyController {
     private final MunicipalAgencyService agencyService;
 
     @GetMapping
-    public ResponseEntity<Page<MunicipalAgencyResponse>> findAll(@PageableDefault(size = 10, sort = "name") Pageable pageable) {
+    public ResponseEntity<Page<MunicipalAgencyResponse>> findAll(
+            @ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(agencyService.findAll(pageable));
     }
 

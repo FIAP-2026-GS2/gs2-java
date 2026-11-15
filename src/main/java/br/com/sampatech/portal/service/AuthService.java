@@ -7,6 +7,8 @@ import br.com.sampatech.portal.dto.response.UserResponse;
 import br.com.sampatech.portal.entity.PlatformUser;
 import br.com.sampatech.portal.entity.UserType;
 import br.com.sampatech.portal.exception.BusinessException;
+import br.com.sampatech.portal.messaging.EventPublisher;
+import br.com.sampatech.portal.messaging.UserRegisteredEvent;
 import br.com.sampatech.portal.repository.PlatformUserRepository;
 import br.com.sampatech.portal.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public UserResponse register(RegisterRequest req) {
@@ -44,7 +47,10 @@ public class AuthService {
                 .build();
 
         PlatformUser saved = userRepository.save(user);
-        // Passo messaging: publicar o evento usuario.cadastrado aqui
+
+        eventPublisher.publishUserRegistered(new UserRegisteredEvent(
+                saved.getId(), saved.getName(), saved.getEmail(), saved.getRegistrationDate()));
+
         return UserResponse.from(saved);
     }
 

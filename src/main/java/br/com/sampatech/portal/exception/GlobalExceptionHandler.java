@@ -3,10 +3,13 @@ package br.com.sampatech.portal.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +30,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "Dados inválidos", req, fields);
     }
 
+    @ExceptionHandler({InvalidDataAccessApiUsageException.class, PropertyReferenceException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidSort(Exception ex, HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, "Parâmetro de ordenação (sort) inválido", req, List.of());
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), req, List.of());
@@ -40,6 +48,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest req) {
         return build(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos", req, List.of());
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErrorResponse> handleDisabled(DisabledException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNAUTHORIZED, "Conta desativada", req, List.of());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -59,10 +72,5 @@ public class GlobalExceptionHandler {
         ErrorResponse body = ErrorResponse.withFields(
                 status.value(), status.getReasonPhrase(), message, req.getRequestURI(), fields);
         return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
-    public ResponseEntity<ErrorResponse> handleDisabled(Exception ex, HttpServletRequest req) {
-        return build(HttpStatus.UNAUTHORIZED, "Conta desativada", req, List.of());
     }
 }
