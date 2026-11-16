@@ -32,4 +32,7 @@ public class EventPublisher {
             log.warn("Falha ao publicar {}: {}", routingKey, e.getMessage());
         }
     }
+    public void publishChatMessage(ChatMessageEvent event) {
+        send(RabbitConfig.CHAT_MESSAGE, event);
+    }
 }
