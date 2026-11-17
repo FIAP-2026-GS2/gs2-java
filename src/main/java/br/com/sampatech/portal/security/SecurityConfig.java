@@ -48,6 +48,28 @@ public class SecurityConfig {
 
         return http.build();
     }
+    @Bean
+    @Order(2)
+    public SecurityFilterChain siteFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/cadastro", "/ocorrencias/**", "/chat",
+                                "/css/**", "/js/**", "/images/**", "/error").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .usernameParameter("email")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?erro")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/?logout")
+                        .permitAll());
+        return http.build();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
