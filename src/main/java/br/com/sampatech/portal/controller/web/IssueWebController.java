@@ -22,24 +22,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/ocorrencias")
+@RequestMapping("/issues")
 @RequiredArgsConstructor
 public class IssueWebController {
 
-    private static final Map<String, String> STATUS = new LinkedHashMap<>();
-    private static final Map<String, String> SEVERIDADE = new LinkedHashMap<>();
+    private static final Map<String, String> STATUS_LABELS = new LinkedHashMap<>();
+    private static final Map<String, String> SEVERITY_LABELS = new LinkedHashMap<>();
 
     static {
-        STATUS.put("OPEN", "Aberta");
-        STATUS.put("ASSIGNED", "Encaminhada");
-        STATUS.put("IN_PROGRESS", "Em andamento");
-        STATUS.put("VALIDATION", "Em validação");
-        STATUS.put("RESOLVED", "Resolvida");
+        STATUS_LABELS.put("OPEN", "Aberta");
+        STATUS_LABELS.put("ASSIGNED", "Encaminhada");
+        STATUS_LABELS.put("IN_PROGRESS", "Em andamento");
+        STATUS_LABELS.put("VALIDATION", "Em validação");
+        STATUS_LABELS.put("RESOLVED", "Resolvida");
 
-        SEVERIDADE.put("LOW", "Baixa");
-        SEVERIDADE.put("MEDIUM", "Média");
-        SEVERIDADE.put("HIGH", "Alta");
-        SEVERIDADE.put("CRITICAL", "Crítica");
+        SEVERITY_LABELS.put("LOW", "Baixa");
+        SEVERITY_LABELS.put("MEDIUM", "Média");
+        SEVERITY_LABELS.put("HIGH", "Alta");
+        SEVERITY_LABELS.put("CRITICAL", "Crítica");
     }
 
     private final IssueService issueService;
@@ -47,43 +47,41 @@ public class IssueWebController {
     private final SearchTrackingService searchTrackingService;
 
     @GetMapping
-    public String listar(@AuthenticationPrincipal UserDetails me,
-                         @RequestParam(required = false) Long typeId,
-                         @RequestParam(required = false) String status,
-                         @RequestParam(required = false) String neighborhood,
-                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-                         @PageableDefault(size = 10, sort = "openingDate", direction = Sort.Direction.DESC) Pageable pageable,
-                         Model model) {
+    public String list(@AuthenticationPrincipal UserDetails me,
+                       @RequestParam(required = false) Long typeId,
+                       @RequestParam(required = false) String status,
+                       @RequestParam(required = false) String neighborhood,
+                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                       @PageableDefault(size = 10, sort = "openingDate", direction = Sort.Direction.DESC) Pageable pageable,
+                       Model model) {
 
         Page<IssueSummaryResponse> page = issueService.search(typeId, status, neighborhood, from, to, pageable);
 
         searchTrackingService.track(typeId, neighborhood, "SITE", me != null ? me.getUsername() : null);
 
         model.addAttribute("page", page);
-        model.addAttribute("tipos", issueTypeService.listActive());
-        model.addAttribute("statusNomes", STATUS);
-        model.addAttribute("severidades", SEVERIDADE);
-
-
+        model.addAttribute("types", issueTypeService.listActive());
+        model.addAttribute("statusLabels", STATUS_LABELS);
+        model.addAttribute("severityLabels", SEVERITY_LABELS);
         model.addAttribute("typeId", typeId);
         model.addAttribute("status", status);
         model.addAttribute("neighborhood", neighborhood);
         model.addAttribute("from", from);
         model.addAttribute("to", to);
 
-        return "ocorrencias/lista";
+        return "issues/list";
     }
 
     @GetMapping("/{id}")
-    public String detalhe(@PathVariable Long id, Model model) {
+    public String detail(@PathVariable Long id, Model model) {
         try {
             model.addAttribute("issue", issueService.findById(id));
         } catch (ResourceNotFoundException e) {
-            return "redirect:/ocorrencias?naoEncontrada";
+            return "redirect:/issues?notFound";
         }
-        model.addAttribute("statusNomes", STATUS);
-        model.addAttribute("severidades", SEVERIDADE);
-        return "ocorrencias/detalhe";
+        model.addAttribute("statusLabels", STATUS_LABELS);
+        model.addAttribute("severityLabels", SEVERITY_LABELS);
+        return "issues/detail";
     }
 }

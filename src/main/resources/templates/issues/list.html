@@ -7,21 +7,20 @@
 <main class="container py-4">
     <h2 class="mb-3">Ocorrências</h2>
 
-    <div th:if="${param.naoEncontrada}" class="alert alert-warning">Ocorrência não encontrada.</div>
+    <div th:if="${param.notFound}" class="alert alert-warning">Ocorrência não encontrada.</div>
 
-
-    <form th:action="@{/ocorrencias}" method="get" class="row g-2 mb-4">
+    <form th:action="@{/issues}" method="get" class="row g-2 mb-4">
         <div class="col-md-3">
             <select name="typeId" class="form-select">
                 <option value="">Todos os tipos</option>
-                <option th:each="t : ${tipos}" th:value="${t.id}" th:text="${t.name}"
+                <option th:each="t : ${types}" th:value="${t.id}" th:text="${t.name}"
                         th:selected="${t.id == typeId}"></option>
             </select>
         </div>
         <div class="col-md-2">
             <select name="status" class="form-select">
                 <option value="">Todos os status</option>
-                <option th:each="s : ${statusNomes}" th:value="${s.key}" th:text="${s.value}"
+                <option th:each="s : ${statusLabels}" th:value="${s.key}" th:text="${s.value}"
                         th:selected="${s.key == status}"></option>
             </select>
         </div>
@@ -36,10 +35,9 @@
         </div>
         <div class="col-12">
             <button class="btn btn-success" type="submit">Filtrar</button>
-            <a class="btn btn-outline-secondary" th:href="@{/ocorrencias}">Limpar</a>
+            <a class="btn btn-outline-secondary" th:href="@{/issues}">Limpar</a>
         </div>
     </form>
-
 
     <p class="text-muted" th:text="${page.totalElements} + ' ocorrência(s) encontrada(s)'"></p>
 
@@ -59,33 +57,32 @@
             </thead>
             <tbody>
             <tr th:each="i : ${page.content}">
-                <td><a th:href="@{/ocorrencias/{id}(id=${i.id})}" th:text="${i.title}"></a></td>
+                <td><a th:href="@{/issues/{id}(id=${i.id})}" th:text="${i.title}"></a></td>
                 <td th:text="${i.issueType}"></td>
                 <td th:text="${i.neighborhood} ?: '-'"></td>
                 <td>
                     <span class="badge" th:classappend="${i.resolved} ? 'bg-success' : 'bg-warning text-dark'"
-                          th:text="${statusNomes[i.status]} ?: ${i.status}"></span>
+                          th:text="${statusLabels[i.status]} ?: ${i.status}"></span>
                 </td>
-                <td th:text="${i.severity != null} ? ${severidades[i.severity.name()]} : '-'"></td>
+                <td th:text="${i.severity != null} ? ${severityLabels[i.severity.name()]} : '-'"></td>
                 <td th:text="${#temporals.format(i.openingDate, 'dd/MM/yyyy HH:mm')}"></td>
             </tr>
             </tbody>
         </table>
     </div>
 
-
     <nav th:if="${page.totalPages > 1}">
         <ul class="pagination">
             <li class="page-item" th:classappend="${page.first} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/ocorrencias(page=${page.number - 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Anterior</a>
+                   th:href="@{/issues(page=${page.number - 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Anterior</a>
             </li>
             <li class="page-item disabled">
                 <span class="page-link" th:text="${page.number + 1} + ' de ' + ${page.totalPages}"></span>
             </li>
             <li class="page-item" th:classappend="${page.last} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/ocorrencias(page=${page.number + 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Próxima</a>
+                   th:href="@{/issues(page=${page.number + 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Próxima</a>
             </li>
         </ul>
     </nav>

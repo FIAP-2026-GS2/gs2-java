@@ -5,11 +5,11 @@
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
 <main class="container py-4" th:with="s=${issue.summary}">
-  <a th:href="@{/ocorrencias}" class="btn btn-link px-0 mb-3">&larr; Voltar</a>
+  <a th:href="@{/issues}" class="btn btn-link px-0 mb-3">&larr; Voltar</a>
 
   <h2 th:text="${s.title}"></h2>
   <span class="badge mb-3" th:classappend="${s.resolved} ? 'bg-success' : 'bg-warning text-dark'"
-        th:text="${statusNomes[s.status]} ?: ${s.status}"></span>
+        th:text="${statusLabels[s.status]} ?: ${s.status}"></span>
 
   <div class="row">
     <div class="col-md-7">
@@ -18,7 +18,7 @@
         <dd class="col-sm-8" th:text="${s.issueType}"></dd>
 
         <dt class="col-sm-4">Gravidade</dt>
-        <dd class="col-sm-8" th:text="${s.severity != null} ? ${severidades[s.severity.name()]} : '-'"></dd>
+        <dd class="col-sm-8" th:text="${s.severity != null} ? ${severityLabels[s.severity.name()]} : '-'"></dd>
 
         <dt class="col-sm-4">Local</dt>
         <dd class="col-sm-8" th:text="${s.street != null} ? ${s.street} + ' - ' + ${s.neighborhood} : '-'"></dd>
@@ -42,7 +42,7 @@
   <ul class="list-group" th:unless="${#lists.isEmpty(issue.history)}">
     <li class="list-group-item" th:each="h : ${issue.history}">
       <strong th:text="${#temporals.format(h.changeDate, 'dd/MM/yyyy HH:mm')}"></strong>
-      <span th:text="' · ' + (${statusNomes[h.previousStatus]} ?: 'Início') + ' → ' + (${statusNomes[h.newStatus]} ?: ${h.newStatus})"></span>
+      <span th:text="' · ' + (${statusLabels[h.previousStatus]} ?: 'Início') + ' → ' + (${statusLabels[h.newStatus]} ?: ${h.newStatus})"></span>
       <div class="text-muted small" th:if="${h.notes}" th:text="${h.notes}"></div>
     </li>
   </ul>
