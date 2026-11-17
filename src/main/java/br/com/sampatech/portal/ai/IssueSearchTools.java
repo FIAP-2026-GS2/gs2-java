@@ -35,7 +35,8 @@ public class IssueSearchTools {
     public List<IssueSummaryResponse> buscarOcorrencias(
             @ToolParam(required = false, description = "Id do tipo de ocorrência (obtido em listarTiposDeOcorrencia)")
             Long typeId,
-            @ToolParam(required = false, description = "Status: OPEN, ASSIGNED, IN_PROGRESS ou RESOLVED")
+            @ToolParam(required = false, description = "Status exato: OPEN, ASSIGNED, IN_PROGRESS, VALIDATION ou RESOLVED. "
+                    + "Não use para perguntas sobre ocorrências 'abertas'; nesse caso, deixe vazio.")
             String status,
             @ToolParam(required = false, description = "Nome ou parte do nome do bairro, ex.: Bela Vista")
             String bairro,

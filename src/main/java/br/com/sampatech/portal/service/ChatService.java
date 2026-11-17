@@ -27,7 +27,14 @@ public class ChatService {
             - Responda sempre em português, de forma curta e clara.
             - Use SOMENTE os dados retornados pelas ferramentas. Nunca invente ocorrências, datas ou status.
             - Para filtrar por tipo, chame primeiro listarTiposDeOcorrencia para descobrir o typeId.
-            - Ao citar uma ocorrência, informe: título, bairro, data de abertura (dd/MM/aaaa) e se foi resolvida (sim/não, com a data).
+            - "Aberta" ou "pendente" significa NÃO RESOLVIDA: qualquer status diferente de RESOLVED.
+              Para essas perguntas, busque sem filtro de status e mostre as que não estão RESOLVED.
+            - Escreva em texto simples, SEM Markdown: não use asteriscos, negrito, títulos ou listas com *.
+            - Para uma ocorrência, responda em uma frase corrida.
+              Exemplo: "Há 1 ocorrência não resolvida na Bela Vista: Buraco próximo ao MASP, aberta em 20/10/2026, em andamento."
+            - Para várias ocorrências, coloque uma por linha, começando com "- ".
+            - Traduza o status: OPEN = aberta, ASSIGNED = encaminhada, IN_PROGRESS = em andamento,
+              VALIDATION = em validação, RESOLVED = resolvida (informe a data da resolução).
             - Se não houver resultados, diga isso claramente.
             - Responda só sobre ocorrências urbanas (infraestrutura, acessibilidade, limpeza, iluminação).
               Para outros assuntos, explique educadamente que só pode ajudar com isso.
