@@ -7,7 +7,7 @@ spring:
       api-key: ${LLM_API_KEY}
       chat:
         options:
-          model: ${LLM_MODEL:gemini-2.5-flash}
+          model: ${LLM_MODEL:gemini-3.1-flash-lite}
   config:
     import: optional:file:.env[.properties]
 
