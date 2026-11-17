@@ -1,3 +1,50 @@
 spring:
   application:
     name: portal-service
+  ai:
+    openai:
+      base-url: ${LLM_BASE_URL:https://generativelanguage.googleapis.com/v1beta/openai}
+      api-key: ${LLM_API_KEY}
+      chat:
+        options:
+          model: ${LLM_MODEL:gemini-3.1-flash-lite}
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      maximum-pool-size: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: false
+
+  data:
+    web:
+      pageable:
+        max-page-size: 50
+
+  rabbitmq:
+    addresses: ${RABBITMQ_URL:amqp://guest:guest@localhost:5672}
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-minutes: 120
+
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

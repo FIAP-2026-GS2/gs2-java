@@ -3,6 +3,7 @@ package br.com.sampatech.portal.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import org.hibernate.type.YesNoConverter;
 
 @Entity
 @Table(name = "PLATFORM_USER")
@@ -34,6 +35,7 @@ public class PlatformUser {
     @Column(name = "REGISTRATION_DATE", nullable = false)
     private LocalDateTime registrationDate;
 
+    @Convert(converter = YesNoConverter.class)
     @Column(name = "IS_ACTIVE", nullable = false)
     private Boolean active;
 }
