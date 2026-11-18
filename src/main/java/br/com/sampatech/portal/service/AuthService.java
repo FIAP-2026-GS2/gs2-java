@@ -31,7 +31,7 @@ public class AuthService {
     private final EventPublisher eventPublisher;
 
     @Transactional
-    public UserResponse register(RegisterRequest req) {
+    public AuthResponse register(RegisterRequest req) {
         String email = req.email().trim().toLowerCase();
         if (userRepository.existsByEmail(email)) {
             throw new BusinessException("E-mail já cadastrado");
@@ -51,7 +51,8 @@ public class AuthService {
         eventPublisher.publishUserRegistered(new UserRegisteredEvent(
                 saved.getId(), saved.getName(), saved.getEmail(), saved.getRegistrationDate()));
 
-        return UserResponse.from(saved);
+        String token = jwtService.generateToken(saved);
+        return AuthResponse.bearer(token, UserResponse.from(saved));
     }
 
     public AuthResponse login(LoginRequest req) {
