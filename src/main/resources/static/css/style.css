@@ -232,7 +232,7 @@ footer,
     background-color: var(--st-primary-hover);
 }
 
-.chat-bubble i {
+.chat-bubble .icon {
     position: absolute;
     transition: transform 0.25s ease, opacity 0.2s ease;
 }
@@ -416,6 +416,63 @@ footer,
     }
 }
 
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    vertical-align: -0.125em;
+    background-color: currentColor;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+.icon-camera {
+    --icon: url("/images/icons/camera.svg");
+}
+
+.icon-close {
+    --icon: url("/images/icons/xmark.svg");
+}
+
+.icon-comments {
+    --icon: url("/images/icons/comments.svg");
+}
+
+.icon-gear {
+    --icon: url("/images/icons/gear.svg");
+}
+
+.icon-logout {
+    --icon: url("/images/icons/right-from-bracket.svg");
+}
+
+.icon-map {
+    --icon: url("/images/icons/map-location-dot.svg");
+}
+
+.icon-reset {
+    --icon: url("/images/icons/rotate-right.svg");
+}
+
+.icon-send {
+    --icon: url("/images/icons/paper-plane.svg");
+}
+
+.icon-user {
+    --icon: url("/images/icons/user.svg");
+}
+
+.st-brand .icon {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.chat-avatar .icon {
+    width: 20px;
+    height: 20px;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -423,18 +480,4 @@ footer,
         transition: none !important;
         animation: none !important;
     }
-
-.st-camera {
-    display: inline-block;
-    width: 1.2em;
-    height: 1.2em;
-    background-color: currentColor;
-    -webkit-mask: url("/images/camera.png") center / contain no-repeat;
-    mask: url("/images/camera.png") center / contain no-repeat;
-}
-
-.st-brand .st-camera {
-    width: 1.5em;
-    height: 1.5em;
-}
 }

@@ -5,8 +5,8 @@
     if (!options.length) return;
 
     const ICONS = {
-        light: { still: '/images/theme/sun.png', anim: '/images/theme/sun.gif', duration: 1170 },
-        dark: { still: '/images/theme/moon.png', anim: '/images/theme/moon.gif', duration: 2400 }
+        light: { still: '/images/theme/sun.svg', anim: '/images/theme/sun.gif', duration: 1170 },
+        dark: { still: '/images/theme/moon.svg', anim: '/images/theme/moon.gif', duration: 2400 }
     };
     const timers = {};
 
