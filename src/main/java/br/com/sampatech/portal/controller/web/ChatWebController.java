@@ -39,17 +39,17 @@ public class ChatWebController {
             return "redirect:/chat";
         }
         String question = message.length() > 1000 ? message.substring(0, 1000) : message.trim();
-        String email = me != null ? me.getUsername() : null;
 
-        String answer = chatService.ask(question, email).answer();
+        String answer = chatService.ask(question, email(me), session.getId()).answer();
         getConversation(session).add(new ChatMessage(question, answer));
 
         return "redirect:/chat";
     }
 
     @PostMapping(value = "/chat", params = "clear")
-    public String clear(HttpSession session) {
+    public String clear(@AuthenticationPrincipal UserDetails me, HttpSession session) {
         session.removeAttribute(CONVERSATION);
+        chatService.clearMemory(email(me), session.getId());
         return "redirect:/chat";
     }
 
@@ -59,9 +59,8 @@ public class ChatWebController {
                                         @AuthenticationPrincipal UserDetails me,
                                         HttpSession session) {
         String question = request.message().trim();
-        String email = me != null ? me.getUsername() : null;
 
-        ChatAnswerResponse response = chatService.ask(question, email);
+        ChatAnswerResponse response = chatService.ask(question, email(me), session.getId());
         getConversation(session).add(new ChatMessage(question, response.answer()));
 
         return response;
@@ -75,9 +74,14 @@ public class ChatWebController {
 
     @DeleteMapping("/chat/history")
     @ResponseBody
-    public ResponseEntity<Void> clearHistory(HttpSession session) {
+    public ResponseEntity<Void> clearHistory(@AuthenticationPrincipal UserDetails me, HttpSession session) {
         session.removeAttribute(CONVERSATION);
+        chatService.clearMemory(email(me), session.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    private String email(UserDetails me) {
+        return me != null ? me.getUsername() : null;
     }
 
     @SuppressWarnings("unchecked")
