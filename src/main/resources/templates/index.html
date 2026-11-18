@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Início')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-5">
+    <div th:if="${param.logout}" class="alert alert-info">Você saiu da sua conta.</div>
+
+    <h1 class="mb-3">Portal da Transparência</h1>
+    <p class="lead">
+        Acompanhe os problemas urbanos detectados pelas câmeras do Smart Sampa
+        e o andamento de cada ocorrência.
+    </p>
+    <a class="btn btn-primary" th:href="@{/issues}">Ver ocorrências</a>
+    <a class="btn btn-outline-primary" th:href="@{/chat}">Perguntar ao assistente</a>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

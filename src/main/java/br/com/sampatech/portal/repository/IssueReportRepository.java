@@ -18,7 +18,10 @@ public interface IssueReportRepository extends Repository<IssueReport, Long> {
         LEFT JOIN i.monitoringPoint mp
         WHERE (:typeId IS NULL OR i.issueType.id = :typeId)
           AND (:status IS NULL OR i.status = :status)
-          AND (:neighborhood IS NULL OR LOWER(mp.neighborhood) LIKE LOWER(CONCAT('%', :neighborhood, '%')))
+          AND (:neighborhood IS NULL
+               OR LOWER(mp.neighborhood) LIKE LOWER(CONCAT('%', :neighborhood, '%'))
+               OR LOWER(mp.street) LIKE LOWER(CONCAT('%', :neighborhood, '%'))
+               OR LOWER(i.title) LIKE LOWER(CONCAT('%', :neighborhood, '%')))
           AND (:from IS NULL OR i.openingDate >= :from)
           AND (:to IS NULL OR i.openingDate <= :to)
         """)

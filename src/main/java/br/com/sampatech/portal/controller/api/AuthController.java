@@ -3,7 +3,6 @@ package br.com.sampatech.portal.controller.api;
 import br.com.sampatech.portal.dto.request.LoginRequest;
 import br.com.sampatech.portal.dto.request.RegisterRequest;
 import br.com.sampatech.portal.dto.response.AuthResponse;
-import br.com.sampatech.portal.dto.response.UserResponse;
 import br.com.sampatech.portal.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody @Valid RegisterRequest req) {
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(req));
     }
 

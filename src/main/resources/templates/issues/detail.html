@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ocorrência')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4" th:with="s=${issue.summary}">
+  <a th:href="@{/issues}" class="btn btn-link px-0 mb-3">&larr; Voltar</a>
+
+  <h2 th:text="${s.title}"></h2>
+  <span class="badge mb-3" th:classappend="${s.resolved} ? 'bg-success' : 'bg-warning text-dark'"
+        th:text="${statusLabels[s.status]} ?: ${s.status}"></span>
+
+  <div class="row">
+    <div class="col-md-7">
+      <dl class="row">
+        <dt class="col-sm-4">Tipo</dt>
+        <dd class="col-sm-8" th:text="${s.issueType}"></dd>
+
+        <dt class="col-sm-4">Gravidade</dt>
+        <dd class="col-sm-8" th:text="${s.severity != null} ? ${severityLabels[s.severity.name()]} : '-'"></dd>
+
+        <dt class="col-sm-4">Local</dt>
+        <dd class="col-sm-8" th:text="${s.street != null} ? ${s.street} + ' - ' + ${s.neighborhood} : '-'"></dd>
+
+        <dt class="col-sm-4">Aberta em</dt>
+        <dd class="col-sm-8" th:text="${#temporals.format(s.openingDate, 'dd/MM/yyyy HH:mm')}"></dd>
+
+        <dt class="col-sm-4">Resolvida em</dt>
+        <dd class="col-sm-8"
+            th:text="${s.resolutionDate != null} ? ${#temporals.format(s.resolutionDate, 'dd/MM/yyyy HH:mm')} : 'Ainda não resolvida'"></dd>
+
+        <dt class="col-sm-4">Descrição</dt>
+        <dd class="col-sm-8" th:text="${issue.description} ?: '-'"></dd>
+      </dl>
+    </div>
+  </div>
+
+  <h4 class="mt-4">Histórico</h4>
+  <div th:if="${#lists.isEmpty(issue.history)}" class="text-muted">Sem alterações registradas.</div>
+
+  <ul class="list-group" th:unless="${#lists.isEmpty(issue.history)}">
+    <li class="list-group-item" th:each="h : ${issue.history}">
+      <strong th:text="${#temporals.format(h.changeDate, 'dd/MM/yyyy HH:mm')}"></strong>
+      <span th:text="' · ' + (${statusLabels[h.previousStatus]} ?: 'Início') + ' → ' + (${statusLabels[h.newStatus]} ?: ${h.newStatus})"></span>
+      <div class="text-muted small" th:if="${h.notes}" th:text="${h.notes}"></div>
+    </li>
+  </ul>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
