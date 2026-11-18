@@ -1,16 +1,18 @@
 package br.com.sampatech.portal.controller.web;
 
 import br.com.sampatech.portal.dto.form.ChatMessage;
+import br.com.sampatech.portal.dto.request.ChatRequest;
+import br.com.sampatech.portal.dto.response.ChatAnswerResponse;
 import br.com.sampatech.portal.service.ChatService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,33 @@ public class ChatWebController {
     public String clear(HttpSession session) {
         session.removeAttribute(CONVERSATION);
         return "redirect:/chat";
+    }
+
+    @PostMapping("/chat/ask")
+    @ResponseBody
+    public ChatAnswerResponse askWidget(@RequestBody @Valid ChatRequest request,
+                                        @AuthenticationPrincipal UserDetails me,
+                                        HttpSession session) {
+        String question = request.message().trim();
+        String email = me != null ? me.getUsername() : null;
+
+        ChatAnswerResponse response = chatService.ask(question, email);
+        getConversation(session).add(new ChatMessage(question, response.answer()));
+
+        return response;
+    }
+
+    @GetMapping("/chat/history")
+    @ResponseBody
+    public List<ChatMessage> history(HttpSession session) {
+        return getConversation(session);
+    }
+
+    @DeleteMapping("/chat/history")
+    @ResponseBody
+    public ResponseEntity<Void> clearHistory(HttpSession session) {
+        session.removeAttribute(CONVERSATION);
+        return ResponseEntity.noContent().build();
     }
 
     @SuppressWarnings("unchecked")

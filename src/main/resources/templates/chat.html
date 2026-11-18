@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head('Chat')}"></head>
-<body>
+<body class="no-chat-widget">
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
 <main class="container py-4" style="max-width: 760px">
@@ -25,10 +25,10 @@
     <div class="mb-3">
         <div th:each="m : ${conversation}" class="mb-3">
             <div class="d-flex justify-content-end">
-                <div class="bg-success text-white rounded p-2 px-3" style="max-width: 80%" th:text="${m.question}"></div>
+                <div class="bg-primary text-white rounded p-2 px-3" style="max-width: 80%" th:text="${m.question}"></div>
             </div>
             <div class="d-flex justify-content-start mt-2">
-                <div class="bg-light border rounded p-2 px-3" style="max-width: 80%; white-space: pre-line" th:text="${m.answer}"></div>
+                <div class="bg-body-tertiary border rounded p-2 px-3" style="max-width: 80%; white-space: pre-line" th:text="${m.answer}"></div>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
     <form th:action="@{/chat}" method="post" class="d-flex gap-2"
           onsubmit="const b = this.querySelector('button'); b.disabled = true; b.innerText = 'Pensando...';">
         <input name="message" class="form-control" placeholder="Digite sua pergunta" maxlength="1000" required autofocus>
-        <button class="btn btn-success" type="submit">Enviar</button>
+        <button class="btn btn-primary" type="submit">Enviar</button>
     </form>
 </main>
 
