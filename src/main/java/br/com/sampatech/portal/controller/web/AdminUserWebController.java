@@ -17,10 +17,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
 public class AdminUserWebController {
+
+    private static final List<UserType> ASSIGNABLE_TYPES = List.of(UserType.CITIZEN, UserType.ADMIN);
 
     private final UserService userService;
 
@@ -39,7 +43,7 @@ public class AdminUserWebController {
 
         model.addAttribute("user", user);
         model.addAttribute("form", form);
-        model.addAttribute("userTypes", UserType.values());
+        model.addAttribute("userTypes", ASSIGNABLE_TYPES);
         return "admin/user-form";
     }
 
@@ -57,9 +61,13 @@ public class AdminUserWebController {
             return "redirect:/admin/users";
         }
 
+        if (form.getUserType() != null && !ASSIGNABLE_TYPES.contains(form.getUserType())) {
+            result.rejectValue("userType", "invalid", "Tipo de usuário inválido");
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("user", user);
-            model.addAttribute("userTypes", UserType.values());
+            model.addAttribute("userTypes", ASSIGNABLE_TYPES);
             return "admin/user-form";
         }
 

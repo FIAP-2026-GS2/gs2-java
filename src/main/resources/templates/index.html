@@ -59,6 +59,97 @@
     </section>
 
     <section class="container py-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-4 text-center reveal">
+                <img class="about-logo about-logo-light" th:src="@{/images/brand/simbolo-claro.svg}" alt="">
+                <img class="about-logo about-logo-dark" th:src="@{/images/brand/simbolo-escuro.svg}" alt="">
+            </div>
+            <div class="col-lg-8 reveal">
+                <span class="hero-tag">Sobre o projeto</span>
+                <h2 class="fw-bold mt-3">O que é o SampaTech</h2>
+                <p class="lead text-body-secondary">
+                    O SampaTech é um portal da transparência para a zeladoria de São Paulo. Ele reúne, em um só lugar,
+                    os problemas urbanos identificados automaticamente pelas câmeras do Smart Sampa e mostra, de forma
+                    aberta, o que já foi resolvido e o que ainda está na fila.
+                </p>
+                <p class="text-body-secondary mb-0">
+                    A ideia é simples: quem anda pela cidade tem o direito de saber se aquele buraco na rua de casa
+                    já foi visto, quem é responsável por ele e quanto tempo está levando para ser consertado.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <div class="col-md-6 reveal">
+                <div class="audience-card">
+                    <span class="feature-icon"><span class="icon icon-warning" aria-hidden="true"></span></span>
+                    <h3>O problema</h3>
+                    <p>
+                        Buracos, calçadas quebradas e postes apagados costumam depender de alguém reclamar para entrar
+                        na fila de conserto. E, depois da reclamação, o cidadão raramente fica sabendo se o problema
+                        foi resolvido ou quanto tempo levou.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 reveal">
+                <div class="audience-card">
+                    <span class="feature-icon"><span class="icon icon-lightbulb" aria-hidden="true"></span></span>
+                    <h3>A nossa resposta</h3>
+                    <p>
+                        Com as câmeras e a IA, os problemas são registrados assim que aparecem, sem esperar uma
+                        reclamação. Cada ocorrência fica pública, com status, datas e histórico, para qualquer pessoa
+                        acompanhar do celular ou do computador.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5 mt-1">
+            <div class="col-lg-6 reveal">
+                <h3 class="h4 fw-bold mb-3">Por que isso importa</h3>
+                <ul class="about-list">
+                    <li>
+                        <span class="icon icon-search" aria-hidden="true"></span>
+                        <div><strong>Transparência:</strong> os dados de cada ocorrência ficam abertos para qualquer cidadão.</div>
+                    </li>
+                    <li>
+                        <span class="icon icon-clock" aria-hidden="true"></span>
+                        <div><strong>Agilidade:</strong> o registro é automático, então o conserto começa a ser cobrado mais cedo.</div>
+                    </li>
+                    <li>
+                        <span class="icon icon-wheelchair" aria-hidden="true"></span>
+                        <div><strong>Acessibilidade:</strong> calçadas, rampas e piso tátil recebem atenção, porque afetam quem mais precisa.</div>
+                    </li>
+                    <li>
+                        <span class="icon icon-users" aria-hidden="true"></span>
+                        <div><strong>Participação:</strong> no app, o cidadão confirma ou contesta um conserto enviando uma foto.</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-6 reveal">
+                <h3 class="h4 fw-bold mb-3">Para quem é</h3>
+                <ul class="about-list">
+                    <li>
+                        <span class="icon icon-user" aria-hidden="true"></span>
+                        <div><strong>Cidadãos</strong> que querem saber o que está acontecendo no próprio bairro.</div>
+                    </li>
+                    <li>
+                        <span class="icon icon-wheelchair" aria-hidden="true"></span>
+                        <div><strong>Pessoas com deficiência ou mobilidade reduzida</strong>, para quem uma calçada quebrada é um obstáculo de verdade.</div>
+                    </li>
+                    <li>
+                        <span class="icon icon-city-hall" aria-hidden="true"></span>
+                        <div><strong>Gestores públicos</strong>, que ganham uma visão clara do que está pendente em cada região.</div>
+                    </li>
+                </ul>
+                <p class="small text-body-secondary mt-3 mb-0">
+                    Projeto acadêmico desenvolvido por alunos da FIAP na Global Solution 2026 (CitizenTech).
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-muted py-5"><div class="container">
         <div class="section-heading reveal">
             <h2>Como funciona</h2>
             <p class="text-body-secondary">Do problema na rua até a solução, em três etapas.</p>
@@ -89,9 +180,9 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div></section>
 
-    <section class="section-muted py-5">
+    <section class="py-5">
         <div class="container">
             <div class="section-heading reveal">
                 <h2>O que acompanhamos</h2>
@@ -130,7 +221,7 @@
         </div>
     </section>
 
-    <section class="container py-5">
+    <section class="section-muted py-5"><div class="container">
         <div class="section-heading reveal">
             <h2>O que você pode fazer aqui</h2>
         </div>
@@ -164,9 +255,9 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div></section>
 
-    <section class="section-muted py-5" th:unless="${#lists.isEmpty(latestIssues)}">
+    <section class="py-5" th:unless="${#lists.isEmpty(latestIssues)}">
         <div class="container">
             <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4 reveal">
                 <div class="section-heading mb-0">

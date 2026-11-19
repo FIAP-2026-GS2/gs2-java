@@ -10,7 +10,10 @@
     --st-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
     --st-track-bg: #e9ecef;
     --st-thumb-bg: #ffffff;
-    --st-surface: #ffffff;
+    --st-surface: #f2f5f9;
+    --st-surface-border: #dfe6ef;
+    --st-hero-bg: linear-gradient(135deg, rgba(45, 128, 235, 0.22) 0%, rgba(45, 128, 235, 0.08) 40%, rgba(45, 128, 235, 0) 75%);
+    --st-section-bg: linear-gradient(180deg, rgba(45, 128, 235, 0.07) 0%, rgba(45, 128, 235, 0.02) 100%);
     --bs-primary: #2d80eb;
     --bs-primary-rgb: 45, 128, 235;
     --bs-link-color: #2d80eb;
@@ -31,6 +34,9 @@
     --st-track-bg: #2b3035;
     --st-thumb-bg: #495057;
     --st-surface: #1f2328;
+    --st-surface-border: #2c323a;
+    --st-hero-bg: radial-gradient(ellipse at top left, rgba(15, 79, 163, 0.35), transparent 60%);
+    --st-section-bg: #1b1e22;
     --bs-body-bg: #15171a;
     --bs-body-bg-rgb: 21, 23, 26;
     --bs-tertiary-bg: #1b1e22;
@@ -468,14 +474,79 @@ footer,
     --icon: url("/images/icons/user.svg");
 }
 
-.st-brand .icon {
-    width: 1.5em;
-    height: 1.5em;
+.brand-logo {
+    display: block;
+    height: 46px;
+    width: auto;
 }
 
-.chat-avatar .icon {
-    width: 20px;
-    height: 20px;
+.brand-logo-dark,
+[data-bs-theme="dark"] .brand-logo-light {
+    display: none;
+}
+
+[data-bs-theme="dark"] .brand-logo-dark {
+    display: block;
+}
+
+.chat-avatar {
+    background-color: #ffffff;
+}
+
+.chat-avatar img {
+    width: 26px;
+    height: 26px;
+}
+
+.about-logo {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+}
+
+.about-logo-dark,
+[data-bs-theme="dark"] .about-logo-light {
+    display: none;
+}
+
+[data-bs-theme="dark"] .about-logo-dark {
+    display: inline-block;
+}
+
+.about-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.about-list li {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+}
+
+.about-list .icon {
+    margin-top: 0.2rem;
+    color: var(--st-link);
+}
+
+.audience-card {
+    height: 100%;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background-color: var(--st-surface);
+    border: 1px solid var(--st-surface-border);
+}
+
+.audience-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0.75rem 0 0.5rem;
+}
+
+.audience-card p {
+    color: var(--bs-secondary-color);
+    margin-bottom: 0;
 }
 
 .icon-arrow-left {
@@ -580,6 +651,7 @@ footer,
 
 .card {
     --bs-card-bg: var(--st-surface);
+    --bs-card-border-color: var(--st-surface-border);
 }
 
 .text-brand {
@@ -598,7 +670,7 @@ footer,
 }
 
 .hero {
-    background: radial-gradient(ellipse at top left, rgba(var(--st-primary-rgb), 0.14), transparent 60%);
+    background: var(--st-hero-bg);
 }
 
 .hero-tag {
@@ -626,7 +698,7 @@ footer,
     padding: 1.5rem;
     border-radius: 16px;
     background-color: var(--st-surface);
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid var(--st-surface-border);
     box-shadow: var(--st-shadow);
 }
 
@@ -657,7 +729,7 @@ footer,
 }
 
 .section-muted {
-    background-color: var(--bs-tertiary-bg);
+    background: var(--st-section-bg);
 }
 
 .section-label {
@@ -676,7 +748,7 @@ footer,
     padding: 1.75rem;
     border-radius: 16px;
     background-color: var(--st-surface);
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid var(--st-surface-border);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
@@ -750,7 +822,7 @@ footer,
     color: inherit;
     text-decoration: none;
     background-color: var(--st-surface);
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid var(--st-surface-border);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
