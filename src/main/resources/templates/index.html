@@ -1,19 +1,212 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head('Início')}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-<main class="container py-5">
-    <div th:if="${param.logout}" class="alert alert-info">Você saiu da sua conta.</div>
+<main>
+    <div class="container pt-3">
+        <div th:if="${param.logout}" class="alert alert-info">Você saiu da sua conta.</div>
+        <div th:if="${param.deactivated}" class="alert alert-info">Sua conta foi desativada. Obrigado por usar o SampaTech.</div>
+    </div>
 
-    <h1 class="mb-3">Portal da Transparência</h1>
-    <p class="lead">
-        Acompanhe os problemas urbanos detectados pelas câmeras do Smart Sampa
-        e o andamento de cada ocorrência.
-    </p>
-    <a class="btn btn-primary" th:href="@{/issues}">Ver ocorrências</a>
-    <a class="btn btn-outline-primary" th:href="@{/chat}">Perguntar ao assistente</a>
+    <section class="hero">
+        <div class="container py-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7 reveal">
+                    <span class="hero-tag">Portal da Transparência da zeladoria de São Paulo</span>
+                    <h1 class="hero-title mt-3">
+                        Veja o que a cidade está <span class="text-brand">consertando</span>, rua por rua.
+                    </h1>
+                    <p class="lead text-body-secondary mt-3">
+                        Buracos, calçadas quebradas, lixo acumulado e postes apagados são detectados pelas
+                        câmeras do Smart Sampa. Aqui você acompanha cada problema, do registro até a solução.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a class="btn btn-primary btn-lg" th:href="@{/issues}">
+                            <span class="icon icon-search me-2" aria-hidden="true"></span>Ver ocorrências
+                        </a>
+                        <a class="btn btn-outline-primary btn-lg" th:href="@{/chat}">
+                            <span class="icon icon-comments me-2" aria-hidden="true"></span>Perguntar ao assistente
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 reveal">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="stat-card stat-card-main">
+                                <span class="stat-number" th:text="${totalIssues}">0</span>
+                                <span class="stat-label">ocorrências registradas</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <span class="stat-number" th:text="${openIssues}">0</span>
+                                <span class="stat-label">em aberto</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <span class="stat-number" th:text="${resolvedIssues}">0</span>
+                                <span class="stat-label">resolvidas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <div class="section-heading reveal">
+            <h2>Como funciona</h2>
+            <p class="text-body-secondary">Do problema na rua até a solução, em três etapas.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 reveal">
+                <div class="step-card h-100">
+                    <span class="step-number">1</span>
+                    <span class="feature-icon"><span class="icon icon-camera" aria-hidden="true"></span></span>
+                    <h3>As câmeras detectam</h3>
+                    <p>As câmeras do Smart Sampa, espalhadas pela cidade, identificam problemas urbanos no momento em que eles aparecem.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal">
+                <div class="step-card h-100">
+                    <span class="step-number">2</span>
+                    <span class="feature-icon"><span class="icon icon-brain" aria-hidden="true"></span></span>
+                    <h3>A IA analisa</h3>
+                    <p>Uma inteligência artificial classifica o tipo do problema e a gravidade, e registra a ocorrência com o local exato.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal">
+                <div class="step-card h-100">
+                    <span class="step-number">3</span>
+                    <span class="feature-icon"><span class="icon icon-city-hall" aria-hidden="true"></span></span>
+                    <h3>A prefeitura resolve</h3>
+                    <p>O órgão responsável recebe a ocorrência e trabalha na solução. Você acompanha cada etapa por aqui.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-muted py-5">
+        <div class="container">
+            <div class="section-heading reveal">
+                <h2>O que acompanhamos</h2>
+                <p class="text-body-secondary">Quatro áreas que fazem diferença no dia a dia de quem anda pela cidade.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-sm-6 col-lg-3 reveal">
+                    <div class="feature-card h-100">
+                        <span class="feature-icon"><span class="icon icon-road" aria-hidden="true"></span></span>
+                        <h3>Infraestrutura viária</h3>
+                        <p>Buracos, rachaduras e deformações no asfalto.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3 reveal">
+                    <div class="feature-card h-100">
+                        <span class="feature-icon"><span class="icon icon-wheelchair" aria-hidden="true"></span></span>
+                        <h3>Acessibilidade</h3>
+                        <p>Calçadas danificadas, rampas obstruídas e piso tátil quebrado.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3 reveal">
+                    <div class="feature-card h-100">
+                        <span class="feature-icon"><span class="icon icon-broom" aria-hidden="true"></span></span>
+                        <h3>Limpeza urbana</h3>
+                        <p>Lixo acumulado, entulho e bueiros obstruídos.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3 reveal">
+                    <div class="feature-card h-100">
+                        <span class="feature-icon"><span class="icon icon-lightbulb" aria-hidden="true"></span></span>
+                        <h3>Iluminação pública</h3>
+                        <p>Postes apagados e iluminação com defeito.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <div class="section-heading reveal">
+            <h2>O que você pode fazer aqui</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 reveal">
+                <div class="action-card h-100">
+                    <span class="icon icon-search" aria-hidden="true"></span>
+                    <h3>Consultar</h3>
+                    <p>Procure ocorrências por bairro, rua, tipo, status ou data.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal">
+                <div class="action-card h-100">
+                    <span class="icon icon-history" aria-hidden="true"></span>
+                    <h3>Acompanhar</h3>
+                    <p>Veja em que etapa cada problema está e há quanto tempo ele espera solução.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal">
+                <div class="action-card h-100">
+                    <span class="icon icon-comments" aria-hidden="true"></span>
+                    <h3>Perguntar</h3>
+                    <p>Converse com o assistente: "tem buraco aberto na Sé?" e ele responde com os dados reais.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal">
+                <div class="action-card h-100">
+                    <span class="icon icon-user-plus" aria-hidden="true"></span>
+                    <h3>Criar sua conta</h3>
+                    <p>Com login, suas conversas com o assistente ficam salvas no seu histórico.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-muted py-5" th:unless="${#lists.isEmpty(latestIssues)}">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4 reveal">
+                <div class="section-heading mb-0">
+                    <h2>Ocorrências mais recentes</h2>
+                </div>
+                <a th:href="@{/issues}">Ver todas</a>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4 reveal" th:each="i : ${latestIssues}">
+                    <a class="issue-card h-100" th:href="@{/issues/{id}(id=${i.id})}">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <span class="feature-icon feature-icon-sm">
+                                <span class="icon" th:classappend="${categoryIcons[i.category.name()]}" aria-hidden="true"></span>
+                            </span>
+                            <span class="badge" th:classappend="${i.resolved} ? 'bg-success' : 'bg-warning text-dark'"
+                                  th:text="${statusLabels[i.status]} ?: ${i.status}"></span>
+                        </div>
+                        <h3 th:text="${i.title}"></h3>
+                        <p class="mb-0 small text-body-secondary">
+                            <span th:text="${i.neighborhood} ?: 'Local não informado'"></span>
+                            · <span th:text="${#temporals.format(i.openingDate, 'dd/MM/yyyy')}"></span>
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <div class="cta-card reveal">
+            <div>
+                <h2>Transparência é acompanhar de perto.</h2>
+                <p class="mb-0">O SampaTech mostra apenas informações sobre problemas urbanos. Nenhum dado pessoal de cidadãos é exibido.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-light btn-lg" th:href="@{/issues}">Ver ocorrências</a>
+                <a class="btn btn-outline-light btn-lg" th:href="@{/register}" sec:authorize="isAnonymous()">Criar conta</a>
+            </div>
+        </div>
+    </section>
 </main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>

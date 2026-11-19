@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Meu perfil')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <span class="profile-avatar"><span class="icon icon-user" aria-hidden="true"></span></span>
+                    <h1 class="h4 fw-bold mt-3 mb-1" th:text="${user.name}"></h1>
+                    <p class="text-body-secondary mb-2" th:text="${user.email}"></p>
+                    <span class="badge text-bg-primary" th:text="${userTypeLabels[user.userType.name()]}"></span>
+                    <p class="small text-body-secondary mt-3 mb-0"
+                       th:text="'Membro desde ' + ${#temporals.format(user.registrationDate, 'dd/MM/yyyy')}"></p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action d-flex align-items-center" th:href="@{/profile/chat-history}">
+                        <span class="icon icon-history me-2" aria-hidden="true"></span>Histórico do chat
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold mb-3">Dados pessoais</h2>
+                    <form th:action="@{/profile}" th:object="${profileForm}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label" for="name">Nome</label>
+                            <input class="form-control" id="name" th:field="*{name}" th:errorclass="is-invalid">
+                            <div class="invalid-feedback" th:errors="*{name}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="email">E-mail</label>
+                            <input class="form-control" id="email" th:value="${user.email}" disabled>
+                            <div class="form-text">O e-mail é usado no login e não pode ser alterado.</div>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Salvar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold mb-3"><span class="icon icon-key me-2" aria-hidden="true"></span>Alterar senha</h2>
+                    <form th:action="@{/profile/password}" th:object="${passwordForm}" method="post" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="password">Nova senha</label>
+                                <input class="form-control" type="password" id="password" th:field="*{password}" th:errorclass="is-invalid">
+                                <div class="invalid-feedback" th:errors="*{password}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="confirmPassword">Confirmar senha</label>
+                                <input class="form-control" type="password" id="confirmPassword" th:field="*{confirmPassword}" th:errorclass="is-invalid">
+                                <div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-3" type="submit">Alterar senha</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm danger-zone">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold mb-2 text-danger">Desativar conta</h2>
+                    <p class="text-body-secondary">Sua conta deixa de funcionar e você sai do sistema. Para reativar, fale com um administrador.</p>
+                    <form th:action="@{/profile/deactivate}" method="post"
+                          onsubmit="return confirm('Tem certeza que deseja desativar sua conta?');">
+                        <button class="btn btn-outline-danger" type="submit">
+                            <span class="icon icon-ban me-2" aria-hidden="true"></span>Desativar minha conta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

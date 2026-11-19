@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Órgãos municipais')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/admin :: tabs('agencies')}"></div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-primary" th:href="@{/admin/agencies/new}">
+            <span class="icon icon-plus me-2" aria-hidden="true"></span>Novo órgão
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Cidade/UF</th>
+                    <th>Subprefeitura</th>
+                    <th>Situação</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${page.content}">
+                    <td>
+                        <div class="fw-semibold" th:text="${a.name}"></div>
+                        <div class="small text-body-secondary text-truncate" style="max-width: 320px" th:text="${a.description}"></div>
+                    </td>
+                    <td th:text="${a.city} + '/' + ${a.state}"></td>
+                    <td th:text="${a.subprefecture} ?: '-'"></td>
+                    <td>
+                        <span class="badge" th:classappend="${a.active} ? 'text-bg-light border' : 'text-bg-secondary'"
+                              th:text="${a.active} ? 'Ativo' : 'Inativo'"></span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/agencies/{id}/edit(id=${a.id})}">
+                            <span class="icon icon-edit me-1" aria-hidden="true"></span>Editar
+                        </a>
+                        <form th:if="${a.active}" class="d-inline" method="post"
+                              th:action="@{/admin/agencies/{id}/deactivate(id=${a.id})}"
+                              onsubmit="return confirm('Desativar este órgão?');">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                <span class="icon icon-ban me-1" aria-hidden="true"></span>Desativar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <nav th:replace="~{fragments/layout :: pagination(${page}, '/admin/agencies')}"></nav>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
