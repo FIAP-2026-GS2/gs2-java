@@ -30,6 +30,11 @@ spring:
       pageable:
         max-page-size: 50
 
+  web:
+    error:
+      include-stacktrace: never
+      include-exception: false
+
   rabbitmq:
     addresses: ${RABBITMQ_URL:amqp://guest:guest@localhost:5672}
 
@@ -37,6 +42,7 @@ server:
   port: ${PORT:8080}
   error:
     include-stacktrace: never
+    include-exception: false
 
 jwt:
   secret: ${JWT_SECRET}

@@ -5,47 +5,126 @@
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
 <main class="container py-4" th:with="s=${issue.summary}">
-  <a th:href="@{/issues}" class="btn btn-link px-0 mb-3">&larr; Voltar</a>
+    <a th:href="@{/issues}" class="back-link">
+        <span class="icon icon-arrow-left me-1" aria-hidden="true"></span>Voltar para ocorrências
+    </a>
 
-  <h2 th:text="${s.title}"></h2>
-  <span class="badge mb-3" th:classappend="${s.resolved} ? 'bg-success' : 'bg-warning text-dark'"
-        th:text="${statusLabels[s.status]} ?: ${s.status}"></span>
+    <section class="card border-0 shadow-sm mt-3 reveal">
+        <div class="card-body p-4 d-flex flex-column flex-md-row gap-3 align-items-md-center">
+            <span class="feature-icon feature-icon-lg">
+                <span class="icon" th:classappend="${categoryIcons[s.category.name()]}" aria-hidden="true"></span>
+            </span>
+            <div class="flex-grow-1">
+                <div class="small text-body-secondary mb-1">
+                    <span th:text="'#' + ${s.id}"></span>
+                    · <span th:text="${categoryLabels[s.category.name()]}"></span>
+                    · <span th:text="${s.issueType}"></span>
+                </div>
+                <h1 class="h3 mb-0 fw-bold" th:text="${s.title}"></h1>
+            </div>
+            <span class="badge fs-6 px-3 py-2" th:classappend="${s.resolved} ? 'bg-success' : 'bg-warning text-dark'"
+                  th:text="${statusLabels[s.status]} ?: ${s.status}"></span>
+        </div>
+    </section>
 
-  <div class="row">
-    <div class="col-md-7">
-      <dl class="row">
-        <dt class="col-sm-4">Tipo</dt>
-        <dd class="col-sm-8" th:text="${s.issueType}"></dd>
+    <section class="card border-0 shadow-sm mt-3 reveal">
+        <div class="card-body p-4">
+            <h2 class="section-label">Andamento</h2>
+            <ol class="status-stepper">
+                <li th:each="label, it : ${statusSteps}" class="status-step"
+                    th:classappend="${it.index lt currentStep or (it.index == currentStep and s.resolved)} ? 'done' : (${it.index == currentStep} ? 'current' : '')">
+                    <span class="status-dot"><span class="icon icon-check" aria-hidden="true"></span></span>
+                    <span class="status-label" th:text="${label}"></span>
+                </li>
+            </ol>
+        </div>
+    </section>
 
-        <dt class="col-sm-4">Gravidade</dt>
-        <dd class="col-sm-8" th:text="${s.severity != null} ? ${severityLabels[s.severity.name()]} : '-'"></dd>
-
-        <dt class="col-sm-4">Local</dt>
-        <dd class="col-sm-8" th:text="${s.street != null} ? ${s.street} + ' - ' + ${s.neighborhood} : '-'"></dd>
-
-        <dt class="col-sm-4">Aberta em</dt>
-        <dd class="col-sm-8" th:text="${#temporals.format(s.openingDate, 'dd/MM/yyyy HH:mm')}"></dd>
-
-        <dt class="col-sm-4">Resolvida em</dt>
-        <dd class="col-sm-8"
-            th:text="${s.resolutionDate != null} ? ${#temporals.format(s.resolutionDate, 'dd/MM/yyyy HH:mm')} : 'Ainda não resolvida'"></dd>
-
-        <dt class="col-sm-4">Descrição</dt>
-        <dd class="col-sm-8" th:text="${issue.description} ?: '-'"></dd>
-      </dl>
+    <div class="row g-3 mt-0">
+        <div class="col-sm-6 col-lg-3 reveal">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="info-label"><span class="icon icon-location me-2" aria-hidden="true"></span>Local</div>
+                    <div class="info-value" th:text="${s.street} ?: 'Não informado'"></div>
+                    <div class="small text-body-secondary" th:text="${s.neighborhood}"></div>
+                    <a th:if="${issue.latitude != null and issue.longitude != null}" class="small"
+                       target="_blank" rel="noopener"
+                       th:href="@{https://www.openstreetmap.org/(mlat=${issue.latitude}, mlon=${issue.longitude}, zoom=18)}">Ver no mapa</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 reveal">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="info-label"><span class="icon icon-warning me-2" aria-hidden="true"></span>Gravidade</div>
+                    <span th:if="${s.severity != null}" class="badge severity-badge"
+                          th:classappend="'severity-' + ${s.severity.name()}"
+                          th:text="${severityLabels[s.severity.name()]}"></span>
+                    <span th:if="${s.severity == null}" class="info-value">Não informada</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 reveal">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="info-label"><span class="icon icon-calendar me-2" aria-hidden="true"></span>Abertura</div>
+                    <div class="info-value" th:text="${#temporals.format(s.openingDate, 'dd/MM/yyyy')}"></div>
+                    <div class="small text-body-secondary" th:text="${durationText}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 reveal">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="info-label"><span class="icon icon-camera me-2" aria-hidden="true"></span>Detecção</div>
+                    <div class="info-value" th:text="${s.source != null} ? ${sourceLabels[s.source.name()]} : 'Não informada'"></div>
+                    <div class="small text-body-secondary" th:if="${s.resolutionDate != null}"
+                         th:text="'Resolvida em ' + ${#temporals.format(s.resolutionDate, 'dd/MM/yyyy')}"></div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <h4 class="mt-4">Histórico</h4>
-  <div th:if="${#lists.isEmpty(issue.history)}" class="text-muted">Sem alterações registradas.</div>
+    <div class="row g-3 mt-0">
+        <div class="col-lg-7 reveal">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h2 class="section-label">Descrição</h2>
+                    <p class="mb-0" th:text="${issue.description} ?: 'Sem descrição.'"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 reveal">
+            <div class="card border-0 shadow-sm h-100 ask-card">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold">Ficou com dúvida?</h2>
+                    <p class="opacity-75">O assistente explica o andamento desta ocorrência em poucas palavras.</p>
+                    <button type="button" class="btn btn-light"
+                            th:data-chat-question="'Detalhe a ocorrência ' + ${s.id}">
+                        <span class="icon icon-comments me-2" aria-hidden="true"></span>Perguntar ao assistente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <ul class="list-group" th:unless="${#lists.isEmpty(issue.history)}">
-    <li class="list-group-item" th:each="h : ${issue.history}">
-      <strong th:text="${#temporals.format(h.changeDate, 'dd/MM/yyyy HH:mm')}"></strong>
-      <span th:text="' · ' + (${statusLabels[h.previousStatus]} ?: 'Início') + ' → ' + (${statusLabels[h.newStatus]} ?: ${h.newStatus})"></span>
-      <div class="text-muted small" th:if="${h.notes}" th:text="${h.notes}"></div>
-    </li>
-  </ul>
+    <section class="card border-0 shadow-sm mt-3 reveal">
+        <div class="card-body p-4">
+            <h2 class="section-label">Histórico</h2>
+            <p th:if="${#lists.isEmpty(issue.history)}" class="text-body-secondary mb-0">Sem alterações registradas.</p>
+            <ul class="timeline" th:unless="${#lists.isEmpty(issue.history)}">
+                <li class="timeline-item" th:each="h : ${issue.history}">
+                    <div class="timeline-date" th:text="${#temporals.format(h.changeDate, 'dd/MM/yyyy HH:mm')}"></div>
+                    <div class="timeline-title">
+                        <span th:if="${h.previousStatus != null}"
+                              th:text="(${statusLabels[h.previousStatus]} ?: ${h.previousStatus}) + ' → '"></span>
+                        <strong th:text="${statusLabels[h.newStatus]} ?: ${h.newStatus}"></strong>
+                    </div>
+                    <div class="timeline-notes" th:if="${h.notes}" th:text="${h.notes}"></div>
+                </li>
+            </ul>
+        </div>
+    </section>
 </main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>

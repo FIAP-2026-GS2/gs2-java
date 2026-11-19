@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Histórico do chat')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4" style="max-width: 860px">
+    <a th:href="@{/profile}" class="back-link">
+        <span class="icon icon-arrow-left me-1" aria-hidden="true"></span>Voltar para o perfil
+    </a>
+
+    <h1 class="h3 fw-bold mt-3 mb-1">Histórico do chat</h1>
+    <p class="text-body-secondary mb-4">Suas perguntas ao assistente, das mais recentes para as mais antigas.</p>
+
+    <div th:if="${page.empty}" class="empty-state">
+        <span class="icon icon-comments" aria-hidden="true"></span>
+        <p class="mb-3">Você ainda não conversou com o assistente.</p>
+        <a class="btn btn-primary" th:href="@{/chat}">Abrir o chat</a>
+    </div>
+
+    <div th:unless="${page.empty}">
+        <div class="card border-0 shadow-sm mb-3" th:each="c : ${page.content}">
+            <div class="card-body p-4">
+                <div class="small text-body-secondary mb-2" th:text="${#temporals.format(c.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                <div class="d-flex justify-content-end mb-2">
+                    <div class="chat-msg chat-msg-user" th:text="${c.question}"></div>
+                </div>
+                <div class="d-flex justify-content-start">
+                    <div class="chat-msg chat-msg-bot" th:text="${c.answer}"></div>
+                </div>
+            </div>
+        </div>
+
+        <nav th:replace="~{fragments/layout :: pagination(${page}, '/profile/chat-history')}"></nav>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

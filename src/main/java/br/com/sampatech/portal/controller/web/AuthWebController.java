@@ -6,6 +6,8 @@ import br.com.sampatech.portal.exception.BusinessException;
 import br.com.sampatech.portal.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +22,10 @@ public class AuthWebController {
     private final AuthService authService;
 
     @GetMapping("/register")
-    public String registerForm(Model model) {
+    public String registerForm(@AuthenticationPrincipal UserDetails me, Model model) {
+        if (me != null) {
+            return "redirect:/";
+        }
         model.addAttribute("form", new RegisterForm());
         return "register";
     }

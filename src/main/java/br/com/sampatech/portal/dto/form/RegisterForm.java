@@ -15,8 +15,6 @@ public class RegisterForm {
     @NotBlank(message = "Informe seu e-mail")
     @Email(message = "E-mail inválido")
     private String email;
-
-    @NotBlank(message = "Informe uma senha")
     @Size(min = 8, max = 72, message = "Senha deve ter entre 8 e 72 caracteres")
     private String password;
 }

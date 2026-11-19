@@ -1,7 +1,10 @@
 package br.com.sampatech.portal.service;
 
-import br.com.sampatech.portal.dto.response.*;
+import br.com.sampatech.portal.dto.response.IssueDetailResponse;
+import br.com.sampatech.portal.dto.response.IssueHistoryResponse;
+import br.com.sampatech.portal.dto.response.IssueSummaryResponse;
 import br.com.sampatech.portal.entity.IssueReport;
+import br.com.sampatech.portal.exception.BadRequestException;
 import br.com.sampatech.portal.exception.ResourceNotFoundException;
 import br.com.sampatech.portal.repository.IssueHistoryRepository;
 import br.com.sampatech.portal.repository.IssueReportRepository;
@@ -25,6 +28,9 @@ public class IssueService {
 
     public Page<IssueSummaryResponse> search(Long typeId, String status, String neighborhood,
                                              LocalDate from, LocalDate to, Pageable pageable) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new BadRequestException("A data inicial não pode ser posterior à data final");
+        }
         LocalDateTime start = from != null ? from.atStartOfDay() : null;
         LocalDateTime end = to != null ? to.atTime(23, 59, 59) : null;
 

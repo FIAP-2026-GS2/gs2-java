@@ -13,7 +13,7 @@
     const headerMeta = document.querySelector('meta[name="_csrf_header"]');
     const ERROR_MESSAGE = 'Não consegui responder agora. Tente de novo em instantes.';
 
-    let loaded = false;
+    let historyPromise = null;
     let busy = false;
 
     function buildHeaders(json) {
@@ -53,7 +53,6 @@
     }
 
     async function loadHistory() {
-        loaded = true;
         try {
             const response = await fetch('/chat/history', { headers: buildHeaders(false) });
             if (response.ok) {
@@ -68,11 +67,16 @@
         showWelcome();
     }
 
+    function ensureHistory() {
+        if (!historyPromise) historyPromise = loadHistory();
+        return historyPromise;
+    }
+
     function open() {
         widget.classList.add('open');
         toggle.setAttribute('aria-expanded', 'true');
         toggle.setAttribute('aria-label', 'Fechar chat');
-        if (!loaded) loadHistory();
+        ensureHistory();
         setTimeout(function () {
             input.focus();
         }, 200);
@@ -82,6 +86,37 @@
         widget.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('aria-label', 'Abrir chat');
+    }
+
+    async function send(text) {
+        if (!text || busy) return;
+
+        busy = true;
+        addMessage(text, 'user');
+        const typing = addTyping();
+
+        try {
+            const response = await fetch('/chat/ask', {
+                method: 'POST',
+                headers: buildHeaders(true),
+                body: JSON.stringify({ message: text })
+            });
+            const data = response.ok ? await response.json() : null;
+            typing.remove();
+            addMessage(data && data.answer ? data.answer : ERROR_MESSAGE, 'bot');
+        } catch (e) {
+            typing.remove();
+            addMessage(ERROR_MESSAGE, 'bot');
+        }
+
+        busy = false;
+        input.focus();
+    }
+
+    async function ask(text) {
+        open();
+        await ensureHistory();
+        send(text);
     }
 
     toggle.addEventListener('click', function () {
@@ -108,31 +143,19 @@
         input.focus();
     });
 
-    form.addEventListener('submit', async function (event) {
+    form.addEventListener('submit', function (event) {
         event.preventDefault();
         const text = input.value.trim();
-        if (!text || busy) return;
-
-        busy = true;
+        if (!text) return;
         input.value = '';
-        addMessage(text, 'user');
-        const typing = addTyping();
-
-        try {
-            const response = await fetch('/chat/ask', {
-                method: 'POST',
-                headers: buildHeaders(true),
-                body: JSON.stringify({ message: text })
-            });
-            const data = response.ok ? await response.json() : null;
-            typing.remove();
-            addMessage(data && data.answer ? data.answer : ERROR_MESSAGE, 'bot');
-        } catch (e) {
-            typing.remove();
-            addMessage(ERROR_MESSAGE, 'bot');
-        }
-
-        busy = false;
-        input.focus();
+        send(text);
     });
+
+    document.querySelectorAll('[data-chat-question]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            ask(button.getAttribute('data-chat-question'));
+        });
+    });
+
+    window.SampaTechChat = { open: open, ask: ask };
 })();

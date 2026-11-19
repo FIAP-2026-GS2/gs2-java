@@ -47,9 +47,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
-        } catch (JwtException | UsernameNotFoundException e) {
-            // Token inválido ou expirado: segue como anônimo.
-            // Se a rota exigir login, o RestAuthEntryPoint responde 401.
+        } catch (JwtException | UsernameNotFoundException | IllegalArgumentException e) {
+            SecurityContextHolder.clearContext();
         }
 
         chain.doFilter(request, response);

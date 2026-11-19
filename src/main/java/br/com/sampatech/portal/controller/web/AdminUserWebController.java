@@ -1,0 +1,82 @@
+package br.com.sampatech.portal.controller.web;
+
+import br.com.sampatech.portal.config.SortRules;
+import br.com.sampatech.portal.dto.form.UserAdminForm;
+import br.com.sampatech.portal.dto.request.AdminUserUpdateRequest;
+import br.com.sampatech.portal.dto.response.UserResponse;
+import br.com.sampatech.portal.entity.UserType;
+import br.com.sampatech.portal.exception.BusinessException;
+import br.com.sampatech.portal.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/admin/users")
+@RequiredArgsConstructor
+public class AdminUserWebController {
+
+    private static final List<UserType> ASSIGNABLE_TYPES = List.of(UserType.CITIZEN, UserType.ADMIN);
+
+    private final UserService userService;
+
+    @GetMapping
+    public String list(@PageableDefault(size = 10, sort = "id") Pageable pageable, Model model) {
+        model.addAttribute("page", userService.findAll(SortRules.filter(pageable, SortRules.USER, Sort.by("id"))));
+        return "admin/users";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String edit(@PathVariable Long id, Model model) {
+        UserResponse user = userService.findById(id);
+        UserAdminForm form = new UserAdminForm();
+        form.setUserType(user.userType());
+        form.setActive(Boolean.TRUE.equals(user.active()));
+
+        model.addAttribute("user", user);
+        model.addAttribute("form", form);
+        model.addAttribute("userTypes", ASSIGNABLE_TYPES);
+        return "admin/user-form";
+    }
+
+    @PostMapping("/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("form") UserAdminForm form,
+                         BindingResult result,
+                         @AuthenticationPrincipal UserDetails me,
+                         Model model,
+                         RedirectAttributes redirect) {
+        UserResponse user = userService.findById(id);
+
+        if (form.getUserType() != null && !ASSIGNABLE_TYPES.contains(form.getUserType())) {
+            result.rejectValue("userType", "invalid", "Tipo de usuário inválido");
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("user", user);
+            model.addAttribute("userTypes", ASSIGNABLE_TYPES);
+            return "admin/user-form";
+        }
+
+        try {
+            userService.adminUpdate(id, new AdminUserUpdateRequest(form.getUserType(), form.isActive()), me.getUsername());
+        } catch (BusinessException e) {
+            redirect.addFlashAttribute("errorMessage", e.getMessage() + ".");
+            return "redirect:/admin/users";
+        }
+
+        redirect.addFlashAttribute("success", "Usuário " + user.name() + " atualizado.");
+        return "redirect:/admin/users";
+    }
+}

@@ -14,16 +14,19 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final PlatformUserRepository userRepository;
+    private final LoginAttemptService loginAttemptService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        PlatformUser user = userRepository.findByEmail(email)
+        String normalized = email == null ? "" : email.trim().toLowerCase();
+        PlatformUser user = userRepository.findByEmail(normalized)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         return User.withUsername(user.getEmail())
                 .password(user.getPasswordHash())
                 .roles(user.getUserType().name())
                 .disabled(!user.getActive())
+                .accountLocked(loginAttemptService.isBlocked(normalized))
                 .build();
     }
 }

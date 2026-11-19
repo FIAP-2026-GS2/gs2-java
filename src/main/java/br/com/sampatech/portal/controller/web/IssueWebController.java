@@ -1,6 +1,9 @@
 package br.com.sampatech.portal.controller.web;
 
+import br.com.sampatech.portal.config.SortRules;
+import br.com.sampatech.portal.dto.response.IssueDetailResponse;
 import br.com.sampatech.portal.dto.response.IssueSummaryResponse;
+import br.com.sampatech.portal.exception.BadRequestException;
 import br.com.sampatech.portal.exception.ResourceNotFoundException;
 import br.com.sampatech.portal.service.IssueService;
 import br.com.sampatech.portal.service.IssueTypeService;
@@ -18,29 +21,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Controller
 @RequestMapping("/issues")
 @RequiredArgsConstructor
 public class IssueWebController {
-
-    private static final Map<String, String> STATUS_LABELS = new LinkedHashMap<>();
-    private static final Map<String, String> SEVERITY_LABELS = new LinkedHashMap<>();
-
-    static {
-        STATUS_LABELS.put("OPEN", "Aberta");
-        STATUS_LABELS.put("ASSIGNED", "Encaminhada");
-        STATUS_LABELS.put("IN_PROGRESS", "Em andamento");
-        STATUS_LABELS.put("VALIDATION", "Em validação");
-        STATUS_LABELS.put("RESOLVED", "Resolvida");
-
-        SEVERITY_LABELS.put("LOW", "Baixa");
-        SEVERITY_LABELS.put("MEDIUM", "Média");
-        SEVERITY_LABELS.put("HIGH", "Alta");
-        SEVERITY_LABELS.put("CRITICAL", "Crítica");
-    }
 
     private final IssueService issueService;
     private final IssueTypeService issueTypeService;
@@ -56,14 +43,18 @@ public class IssueWebController {
                        @PageableDefault(size = 10, sort = "openingDate", direction = Sort.Direction.DESC) Pageable pageable,
                        Model model) {
 
-        Page<IssueSummaryResponse> page = issueService.search(typeId, status, neighborhood, from, to, pageable);
-
-        searchTrackingService.track(typeId, neighborhood, "SITE", me != null ? me.getUsername() : null);
+        Pageable safePageable = SortRules.filter(pageable, SortRules.ISSUE, Sort.by(Sort.Direction.DESC, "openingDate"));
+        Page<IssueSummaryResponse> page;
+        try {
+            page = issueService.search(typeId, status, neighborhood, from, to, safePageable);
+            searchTrackingService.track(typeId, neighborhood, "SITE", me != null ? me.getUsername() : null);
+        } catch (BadRequestException e) {
+            page = Page.empty(safePageable);
+            model.addAttribute("errorMessage", e.getMessage());
+        }
 
         model.addAttribute("page", page);
         model.addAttribute("types", issueTypeService.listActive());
-        model.addAttribute("statusLabels", STATUS_LABELS);
-        model.addAttribute("severityLabels", SEVERITY_LABELS);
         model.addAttribute("typeId", typeId);
         model.addAttribute("status", status);
         model.addAttribute("neighborhood", neighborhood);
@@ -75,13 +66,34 @@ public class IssueWebController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
+        IssueDetailResponse issue;
         try {
-            model.addAttribute("issue", issueService.findById(id));
+            issue = issueService.findById(id);
         } catch (ResourceNotFoundException e) {
             return "redirect:/issues?notFound";
         }
-        model.addAttribute("statusLabels", STATUS_LABELS);
-        model.addAttribute("severityLabels", SEVERITY_LABELS);
+
+        IssueSummaryResponse summary = issue.summary();
+        model.addAttribute("issue", issue);
+        model.addAttribute("statusSteps", WebModelAdvice.STATUS_FLOW.stream()
+                .map(WebModelAdvice::statusLabel)
+                .toList());
+        model.addAttribute("currentStep", WebModelAdvice.STATUS_FLOW.indexOf(summary.status()));
+        model.addAttribute("durationText", durationText(summary));
         return "issues/detail";
+    }
+
+    private String durationText(IssueSummaryResponse summary) {
+        if (summary.openingDate() == null) {
+            return "";
+        }
+        LocalDateTime end = summary.resolutionDate() != null ? summary.resolutionDate() : LocalDateTime.now();
+        long days = Math.max(0, ChronoUnit.DAYS.between(summary.openingDate(), end));
+        String unit = days == 1 ? " dia" : " dias";
+
+        if (summary.resolutionDate() != null) {
+            return days == 0 ? "Resolvida no mesmo dia" : "Resolvida em " + days + unit;
+        }
+        return days == 0 ? "Aberta hoje" : "Aberta há " + days + unit;
     }
 }

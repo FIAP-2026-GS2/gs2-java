@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="tabs(active)" class="mb-4">
+    <h1 class="h3 mb-3 d-flex align-items-center gap-2">
+        <span class="icon icon-shield text-brand" aria-hidden="true"></span>Administração
+    </h1>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${active == 'users'} ? 'active'" th:href="@{/admin/users}">
+                <span class="icon icon-users me-2" aria-hidden="true"></span>Usuários
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${active == 'types'} ? 'active'" th:href="@{/admin/issue-types}">
+                <span class="icon icon-tags me-2" aria-hidden="true"></span>Tipos de ocorrência
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${active == 'agencies'} ? 'active'" th:href="@{/admin/agencies}">
+                <span class="icon icon-building me-2" aria-hidden="true"></span>Órgãos municipais
+            </a>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>
