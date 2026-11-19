@@ -11,8 +11,10 @@ import br.com.sampatech.portal.messaging.EventPublisher;
 import br.com.sampatech.portal.messaging.UserRegisteredEvent;
 import br.com.sampatech.portal.repository.PlatformUserRepository;
 import br.com.sampatech.portal.security.JwtService;
+import br.com.sampatech.portal.security.LoginAttemptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final EventPublisher eventPublisher;
+    private final LoginAttemptService loginAttemptService;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -57,8 +60,14 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest req) {
         String email = req.email().trim().toLowerCase();
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, req.password()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, req.password()));
+        } catch (BadCredentialsException e) {
+            loginAttemptService.loginFailed(email);
+            throw e;
+        }
+        loginAttemptService.loginSucceeded(email);
 
         PlatformUser user = userRepository.findByEmail(email).orElseThrow();
         String token = jwtService.generateToken(user);

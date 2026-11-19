@@ -9,6 +9,7 @@
 
   <div th:if="${param.error}" class="alert alert-danger">E-mail ou senha inválidos, ou conta desativada.</div>
   <div th:if="${param.registered}" class="alert alert-primary">Cadastro feito! Agora é só entrar.</div>
+  <div th:if="${param.locked}" class="alert alert-warning">Muitas tentativas de login. Aguarde 15 minutos e tente novamente.</div>
 
   <form th:action="@{/login}" method="post">
     <div class="mb-3">

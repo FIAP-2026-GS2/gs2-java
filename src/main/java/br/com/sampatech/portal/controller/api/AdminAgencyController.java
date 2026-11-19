@@ -1,5 +1,6 @@
 package br.com.sampatech.portal.controller.api;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.request.MunicipalAgencyRequest;
 import br.com.sampatech.portal.dto.response.MunicipalAgencyResponse;
 import br.com.sampatech.portal.service.MunicipalAgencyService;
@@ -23,7 +24,7 @@ public class AdminAgencyController {
     @GetMapping
     public ResponseEntity<Page<MunicipalAgencyResponse>> findAll(
             @ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
-        return ResponseEntity.ok(agencyService.findAll(pageable));
+        return ResponseEntity.ok(agencyService.findAll(SortRules.validate(pageable, SortRules.AGENCY)));
     }
 
     @GetMapping("/{id}")

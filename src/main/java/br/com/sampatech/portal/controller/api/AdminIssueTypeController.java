@@ -1,5 +1,6 @@
 package br.com.sampatech.portal.controller.api;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.request.IssueTypeRequest;
 import br.com.sampatech.portal.dto.response.IssueTypeResponse;
 import br.com.sampatech.portal.service.IssueTypeService;
@@ -23,7 +24,7 @@ public class AdminIssueTypeController {
     @GetMapping
     public ResponseEntity<Page<IssueTypeResponse>> findAll(
             @ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
-        return ResponseEntity.ok(issueTypeService.findAll(pageable));
+        return ResponseEntity.ok(issueTypeService.findAll(SortRules.validate(pageable, SortRules.ISSUE_TYPE)));
     }
 
     @GetMapping("/{id}")

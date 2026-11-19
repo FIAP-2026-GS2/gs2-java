@@ -7,6 +7,7 @@ import br.com.sampatech.portal.exception.BusinessException;
 import br.com.sampatech.portal.exception.ResourceNotFoundException;
 import br.com.sampatech.portal.repository.IssueTypeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,34 +40,52 @@ public class IssueTypeService {
 
     @Transactional
     public IssueTypeResponse create(IssueTypeRequest req) {
-        if (issueTypeRepository.existsByNameIgnoreCase(req.name())) {
-            throw new BusinessException("Já existe um tipo com o nome " + req.name());
+        String name = req.name().trim();
+        if (issueTypeRepository.existsByNameIgnoreCase(name)) {
+            throw duplicated(name);
         }
         IssueType type = IssueType.builder()
-                .name(req.name().trim())
+                .name(name)
                 .category(req.category())
-                .description(req.description())
+                .description(clean(req.description()))
                 .active(true)
                 .build();
-        return IssueTypeResponse.from(issueTypeRepository.save(type));
+        return IssueTypeResponse.from(save(type, name));
     }
 
     @Transactional
     public IssueTypeResponse update(Long id, IssueTypeRequest req) {
         IssueType type = getOrThrow(id);
-        boolean nameChanged = !type.getName().equalsIgnoreCase(req.name());
-        if (nameChanged && issueTypeRepository.existsByNameIgnoreCase(req.name())) {
-            throw new BusinessException("Já existe um tipo com o nome " + req.name());
+        String name = req.name().trim();
+        boolean nameChanged = !type.getName().equalsIgnoreCase(name);
+        if (nameChanged && issueTypeRepository.existsByNameIgnoreCase(name)) {
+            throw duplicated(name);
         }
-        type.setName(req.name().trim());
+        type.setName(name);
         type.setCategory(req.category());
-        type.setDescription(req.description());
-        return IssueTypeResponse.from(type);
+        type.setDescription(clean(req.description()));
+        return IssueTypeResponse.from(save(type, name));
     }
 
     @Transactional
     public void deactivate(Long id) {
         getOrThrow(id).setActive(false);
+    }
+
+    private IssueType save(IssueType type, String name) {
+        try {
+            return issueTypeRepository.saveAndFlush(type);
+        } catch (DataIntegrityViolationException e) {
+            throw duplicated(name);
+        }
+    }
+
+    private BusinessException duplicated(String name) {
+        return new BusinessException("Já existe um tipo com o nome " + name);
+    }
+
+    private String clean(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private IssueType getOrThrow(Long id) {

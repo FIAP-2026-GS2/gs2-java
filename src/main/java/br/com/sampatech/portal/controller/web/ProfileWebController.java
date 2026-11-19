@@ -1,5 +1,6 @@
 package br.com.sampatech.portal.controller.web;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.form.PasswordForm;
 import br.com.sampatech.portal.dto.form.ProfileForm;
 import br.com.sampatech.portal.dto.request.UpdateProfileRequest;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -94,7 +96,8 @@ public class ProfileWebController {
     public String chatHistory(@AuthenticationPrincipal UserDetails me,
                               @PageableDefault(size = 10) Pageable pageable,
                               Model model) {
-        model.addAttribute("page", chatHistoryService.getHistory(me.getUsername(), pageable));
+        model.addAttribute("page", chatHistoryService.getHistory(me.getUsername(),
+                SortRules.filter(pageable, SortRules.CHAT, Sort.unsorted())));
         return "profile/chat-history";
     }
 

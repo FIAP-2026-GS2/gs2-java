@@ -48,6 +48,10 @@ public class WebModelAdvice {
             "AGENT", "Agente",
             "ADMIN", "Administrador");
 
+    public static String statusLabel(String status) {
+        return STATUS_LABELS.getOrDefault(status, status);
+    }
+
     @ModelAttribute("statusLabels")
     public Map<String, String> statusLabels() {
         return STATUS_LABELS;

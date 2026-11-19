@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +26,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final RestAuthEntryPoint authEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
+    private final LoginAttemptService loginAttemptService;
 
     @Bean
     @Order(1)
@@ -33,7 +36,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/issues/**", "/api/issue-types").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -63,8 +66,17 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("email")
-                        .defaultSuccessUrl("/", false)
-                        .failureUrl("/login?error")
+                        .successHandler(new WebLoginSuccessHandler(loginAttemptService))
+                        .failureHandler((request, response, exception) -> {
+                            if (exception instanceof LockedException) {
+                                response.sendRedirect(request.getContextPath() + "/login?locked");
+                                return;
+                            }
+                            if (exception instanceof BadCredentialsException) {
+                                loginAttemptService.loginFailed(request.getParameter("email"));
+                            }
+                            response.sendRedirect(request.getContextPath() + "/login?error");
+                        })
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

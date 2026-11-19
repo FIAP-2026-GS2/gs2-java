@@ -1,5 +1,6 @@
 package br.com.sampatech.portal.controller.api;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.response.IssueDetailResponse;
 import br.com.sampatech.portal.dto.response.IssueSummaryResponse;
 import br.com.sampatech.portal.service.IssueService;
@@ -37,7 +38,8 @@ public class IssueController {
             @ParameterObject @PageableDefault(size = 10, sort = "openingDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<IssueSummaryResponse> result =
-                issueService.search(typeId, status, neighborhood, from, to, pageable);
+                issueService.search(typeId, status, neighborhood, from, to,
+                        SortRules.validate(pageable, SortRules.ISSUE));
 
         searchTrackingService.track(typeId, neighborhood, "MOBILE",
                 me != null ? me.getUsername() : null);

@@ -1,13 +1,16 @@
 package br.com.sampatech.portal.controller.web;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.form.UserAdminForm;
 import br.com.sampatech.portal.dto.request.AdminUserUpdateRequest;
 import br.com.sampatech.portal.dto.response.UserResponse;
 import br.com.sampatech.portal.entity.UserType;
+import br.com.sampatech.portal.exception.BusinessException;
 import br.com.sampatech.portal.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +33,7 @@ public class AdminUserWebController {
 
     @GetMapping
     public String list(@PageableDefault(size = 10, sort = "id") Pageable pageable, Model model) {
-        model.addAttribute("page", userService.findAll(pageable));
+        model.addAttribute("page", userService.findAll(SortRules.filter(pageable, SortRules.USER, Sort.by("id"))));
         return "admin/users";
     }
 
@@ -56,11 +59,6 @@ public class AdminUserWebController {
                          RedirectAttributes redirect) {
         UserResponse user = userService.findById(id);
 
-        if (user.email().equalsIgnoreCase(me.getUsername())) {
-            redirect.addFlashAttribute("errorMessage", "Você não pode alterar o tipo nem desativar a própria conta.");
-            return "redirect:/admin/users";
-        }
-
         if (form.getUserType() != null && !ASSIGNABLE_TYPES.contains(form.getUserType())) {
             result.rejectValue("userType", "invalid", "Tipo de usuário inválido");
         }
@@ -71,7 +69,13 @@ public class AdminUserWebController {
             return "admin/user-form";
         }
 
-        userService.adminUpdate(id, new AdminUserUpdateRequest(form.getUserType(), form.isActive()));
+        try {
+            userService.adminUpdate(id, new AdminUserUpdateRequest(form.getUserType(), form.isActive()), me.getUsername());
+        } catch (BusinessException e) {
+            redirect.addFlashAttribute("errorMessage", e.getMessage() + ".");
+            return "redirect:/admin/users";
+        }
+
         redirect.addFlashAttribute("success", "Usuário " + user.name() + " atualizado.");
         return "redirect:/admin/users";
     }

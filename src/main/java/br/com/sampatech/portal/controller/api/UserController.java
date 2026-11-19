@@ -1,5 +1,6 @@
 package br.com.sampatech.portal.controller.api;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.request.UpdateProfileRequest;
 import br.com.sampatech.portal.dto.response.ChatHistoryResponse;
 import br.com.sampatech.portal.dto.response.UserResponse;
@@ -45,6 +46,6 @@ public class UserController {
     public ResponseEntity<Page<ChatHistoryResponse>> chatHistory(
             @AuthenticationPrincipal UserDetails me,
             @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(chatHistoryService.getHistory(me.getUsername(), pageable));
+        return ResponseEntity.ok(chatHistoryService.getHistory(me.getUsername(), SortRules.validate(pageable, SortRules.CHAT)));
     }
 }

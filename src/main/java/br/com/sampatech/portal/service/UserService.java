@@ -4,6 +4,9 @@ import br.com.sampatech.portal.dto.request.AdminUserUpdateRequest;
 import br.com.sampatech.portal.dto.request.UpdateProfileRequest;
 import br.com.sampatech.portal.dto.response.UserResponse;
 import br.com.sampatech.portal.entity.PlatformUser;
+import br.com.sampatech.portal.entity.UserType;
+import br.com.sampatech.portal.exception.BadRequestException;
+import br.com.sampatech.portal.exception.BusinessException;
 import br.com.sampatech.portal.exception.ResourceNotFoundException;
 import br.com.sampatech.portal.repository.PlatformUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +22,6 @@ public class UserService {
 
     private final PlatformUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    //mobile
 
     @Transactional(readOnly = true)
     public UserResponse getProfile(String email) {
@@ -42,8 +43,6 @@ public class UserService {
         getByEmail(email).setActive(false);
     }
 
-    //admin
-
     @Transactional(readOnly = true)
     public Page<UserResponse> findAll(Pageable pageable) {
         return userRepository.findAll(pageable).map(UserResponse::from);
@@ -55,19 +54,29 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse adminUpdate(Long id, AdminUserUpdateRequest req) {
+    public UserResponse adminUpdate(Long id, AdminUserUpdateRequest req, String currentAdminEmail) {
         PlatformUser user = getById(id);
+        ensureNotSelf(user, currentAdminEmail);
+        if (req.userType() == UserType.AGENT) {
+            throw new BadRequestException("Tipo de usuário inválido. Use CITIZEN ou ADMIN");
+        }
         user.setUserType(req.userType());
         user.setActive(req.active());
         return UserResponse.from(user);
     }
 
     @Transactional
-    public void deactivate(Long id) {
-        getById(id).setActive(false);
+    public void deactivate(Long id, String currentAdminEmail) {
+        PlatformUser user = getById(id);
+        ensureNotSelf(user, currentAdminEmail);
+        user.setActive(false);
     }
 
-
+    private void ensureNotSelf(PlatformUser user, String currentAdminEmail) {
+        if (currentAdminEmail != null && user.getEmail().equalsIgnoreCase(currentAdminEmail)) {
+            throw new BusinessException("Você não pode alterar o tipo nem desativar a própria conta");
+        }
+    }
 
     private PlatformUser getByEmail(String email) {
         return userRepository.findByEmail(email)

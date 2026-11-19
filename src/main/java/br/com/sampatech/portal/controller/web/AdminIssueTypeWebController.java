@@ -1,5 +1,6 @@
 package br.com.sampatech.portal.controller.web;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.form.IssueTypeForm;
 import br.com.sampatech.portal.dto.request.IssueTypeRequest;
 import br.com.sampatech.portal.dto.response.IssueTypeResponse;
@@ -9,6 +10,7 @@ import br.com.sampatech.portal.service.IssueTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +27,7 @@ public class AdminIssueTypeWebController {
 
     @GetMapping
     public String list(@PageableDefault(size = 10, sort = "name") Pageable pageable, Model model) {
-        model.addAttribute("page", issueTypeService.findAll(pageable));
+        model.addAttribute("page", issueTypeService.findAll(SortRules.filter(pageable, SortRules.ISSUE_TYPE, Sort.by("name"))));
         return "admin/issue-types";
     }
 

@@ -1,7 +1,9 @@
 package br.com.sampatech.portal.controller.web;
 
+import br.com.sampatech.portal.config.SortRules;
 import br.com.sampatech.portal.dto.response.IssueDetailResponse;
 import br.com.sampatech.portal.dto.response.IssueSummaryResponse;
+import br.com.sampatech.portal.exception.BadRequestException;
 import br.com.sampatech.portal.exception.ResourceNotFoundException;
 import br.com.sampatech.portal.service.IssueService;
 import br.com.sampatech.portal.service.IssueTypeService;
@@ -41,9 +43,15 @@ public class IssueWebController {
                        @PageableDefault(size = 10, sort = "openingDate", direction = Sort.Direction.DESC) Pageable pageable,
                        Model model) {
 
-        Page<IssueSummaryResponse> page = issueService.search(typeId, status, neighborhood, from, to, pageable);
-
-        searchTrackingService.track(typeId, neighborhood, "SITE", me != null ? me.getUsername() : null);
+        Pageable safePageable = SortRules.filter(pageable, SortRules.ISSUE, Sort.by(Sort.Direction.DESC, "openingDate"));
+        Page<IssueSummaryResponse> page;
+        try {
+            page = issueService.search(typeId, status, neighborhood, from, to, safePageable);
+            searchTrackingService.track(typeId, neighborhood, "SITE", me != null ? me.getUsername() : null);
+        } catch (BadRequestException e) {
+            page = Page.empty(safePageable);
+            model.addAttribute("errorMessage", e.getMessage());
+        }
 
         model.addAttribute("page", page);
         model.addAttribute("types", issueTypeService.listActive());
@@ -67,7 +75,9 @@ public class IssueWebController {
 
         IssueSummaryResponse summary = issue.summary();
         model.addAttribute("issue", issue);
-        model.addAttribute("statusFlow", WebModelAdvice.STATUS_FLOW);
+        model.addAttribute("statusSteps", WebModelAdvice.STATUS_FLOW.stream()
+                .map(WebModelAdvice::statusLabel)
+                .toList());
         model.addAttribute("currentStep", WebModelAdvice.STATUS_FLOW.indexOf(summary.status()));
         model.addAttribute("durationText", durationText(summary));
         return "issues/detail";

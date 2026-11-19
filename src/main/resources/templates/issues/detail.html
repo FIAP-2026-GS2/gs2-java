@@ -31,10 +31,10 @@
         <div class="card-body p-4">
             <h2 class="section-label">Andamento</h2>
             <ol class="status-stepper">
-                <li th:each="step, it : ${statusFlow}" class="status-step"
+                <li th:each="label, it : ${statusSteps}" class="status-step"
                     th:classappend="${it.index lt currentStep or (it.index == currentStep and s.resolved)} ? 'done' : (${it.index == currentStep} ? 'current' : '')">
                     <span class="status-dot"><span class="icon icon-check" aria-hidden="true"></span></span>
-                    <span class="status-label" th:text="${statusLabels[step]}"></span>
+                    <span class="status-label" th:text="${label}"></span>
                 </li>
             </ol>
         </div>

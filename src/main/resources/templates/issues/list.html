@@ -9,6 +9,8 @@
 
     <div th:if="${param.notFound}" class="alert alert-warning">Ocorrência não encontrada.</div>
 
+    <div th:if="${errorMessage}" class="alert alert-warning" th:text="${errorMessage}"></div>
+
     <form th:action="@{/issues}" method="get" class="row g-2 mb-4">
         <div class="col-md-3">
             <select name="typeId" class="form-select">
@@ -75,14 +77,14 @@
         <ul class="pagination">
             <li class="page-item" th:classappend="${page.first} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/issues(page=${page.number - 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Anterior</a>
+                   th:href="${page.first} ? null : @{/issues(page=${page.number - 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Anterior</a>
             </li>
             <li class="page-item disabled">
                 <span class="page-link" th:text="${page.number + 1} + ' de ' + ${page.totalPages}"></span>
             </li>
             <li class="page-item" th:classappend="${page.last} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/issues(page=${page.number + 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Próxima</a>
+                   th:href="${page.last} ? null : @{/issues(page=${page.number + 1}, typeId=${typeId}, status=${status}, neighborhood=${neighborhood}, from=${from}, to=${to})}">Próxima</a>
             </li>
         </ul>
     </nav>
