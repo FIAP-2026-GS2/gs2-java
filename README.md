@@ -5,12 +5,27 @@ Backend Java da solução **SampaTech**, desenvolvida para a Global Solution 202
 As câmeras do programa Smart Sampa e um modelo de IA identificam problemas urbanos (buracos, calçadas danificadas, lixo acumulado, postes apagados) e registram cada ocorrência no banco. Este projeto expõe esses dados de forma aberta: uma **API REST** consumida pelo app Mobile, um **portal web** em Thymeleaf e um **assistente com IA generativa** que responde perguntas do cidadão consultando os dados reais.
 
 | | Link |
-|---|---|
+|---|--|
+| **Vídeo de apresentação Java** | https://youtu.be/36vij-KMu1k |
+| Vídeo pitch | https://www.youtube.com/watch?v=_iJKj_591IQ |
 | Portal web e API (deploy) | https://sampatech-portal.onrender.com |
 | Swagger (deploy) | https://sampatech-portal.onrender.com/swagger-ui.html |
 | Notification service (deploy) | https://gs2-java-ipgs.onrender.com |
 | Repositório | https://github.com/FIAP-2026-GS2/gs2-java |
-| Vídeo pitch | _adicionar link_ |
+
+O vídeo de apresentação Java mostra a demo ponta a ponta com o app Mobile, a modelagem e os relacionamentos, o fluxo do JWT, a funcionalidade com Spring AI e a parte distribuída (RabbitMQ). O vídeo pitch é a apresentação geral da solução.
+
+### Serviços usados no deploy
+
+| Serviço | Para que usamos |
+|---|---|
+| **Render** | hospeda os dois serviços (portal e notification) |
+| **CloudAMQP** | RabbitMQ gerenciado na nuvem, por onde o portal publica os eventos e o notification consome |
+| **Brevo** | servidor SMTP que envia o e-mail automático de boas-vindas no cadastro |
+| **Google AI Studio (Gemini)** | modelo de linguagem do assistente com Spring AI |
+| **Oracle (FIAP)** | banco de dados compartilhado com o serviço de IA |
+
+Detalhes de configuração de cada um em [Serviços externos](#serviços-externos).
 
 ### Os dois deploys
 
@@ -226,9 +241,9 @@ O assistente (`POST /api/chat`, a bolinha de chat do portal e a página `/chat`)
 
 1. A pergunta chega ao `ChatService`, que monta a chamada no `ChatClient` com um prompt de sistema (regras de escopo, formato, tradução dos status e proibição de expor dados pessoais), a data do dia e o nome do usuário logado.
 2. O modelo decide quais **tools** chamar (classe `IssueSearchTools`):
-    - `listarTiposDeOcorrencia`: catálogo de tipos ativos;
-    - `buscarOcorrencias`: busca por tipo, status, bairro ou rua, período e "apenas não resolvidas", com o total encontrado;
-    - `detalharOcorrencia`: dados completos e linha do tempo de uma ocorrência.
+   - `listarTiposDeOcorrencia`: catálogo de tipos ativos;
+   - `buscarOcorrencias`: busca por tipo, status, bairro ou rua, período e "apenas não resolvidas", com o total encontrado;
+   - `detalharOcorrencia`: dados completos e linha do tempo de uma ocorrência.
 3. As tools usam os mesmos services da API e normalizam a entrada do modelo (status em português, "Av."/"Rua" no nome do local, datas em DD/MM/AAAA).
 4. Uma **memória de conversa** (`MessageWindowChatMemory`, últimas 10 mensagens) permite perguntas de seguimento, como "e qual dessas fica na Paulista?". A memória é por usuário logado, ou por sessão no portal.
 5. Para usuários logados, a pergunta e a resposta são publicadas no RabbitMQ e gravadas no histórico pelo `notification-service`.
@@ -304,7 +319,7 @@ Exemplo de login:
 ```bash
 curl -X POST https://sampatech-portal.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"cidadao.demo@sampatech.com","password":"SampaTech@2026"}'
+  -d '{"email":"seu-email@exemplo.com","password":"sua-senha"}'
 ```
 
 ---
@@ -461,12 +476,12 @@ docker build -t sampatech-notification ./notification-service
 
 ## Usuários de teste
 
-| Perfil | E-mail | Senha |
-|---|---|---|
-| ADMIN | `sampatechbrasil@gmail.com` | `Cherry2301` |
-| CITIZEN | `cidadao.demo@sampatech.com` | `SampaTech@2026` |
+| Perfil | Como acessar |
+|---|---|
+| ADMIN | o e-mail e a senha estão no arquivo `.txt` da entrega no Portal do Aluno, para não ficarem públicos no repositório |
+| CITIZEN | crie uma conta pelo app, pelo site ou pela API |
 
-Um novo cadastro pelo app, pelo site ou por `POST /api/auth/register` sempre cria um usuário CITIZEN.
+Para testar como cidadão, crie uma conta pelo app, pelo site (`/register`) ou por `POST /api/auth/register`. Todo novo cadastro é criado como CITIZEN e recebe o e-mail de boas-vindas.
 
 ---
 
